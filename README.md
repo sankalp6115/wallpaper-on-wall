@@ -1,8 +1,12 @@
-# Paper-boy Display Engine 📺
+# Paper-boy Display Engine
 
 Paper-boy is a lightweight, remote-controlled ambient display engine and digital signage solution. It allows you to run a beautiful, fullscreen media player on one device (like a TV, tablet, or monitor) and seamlessly control it in real-time from a sleek controller web app on your phone or laptop.
 
 It supports video backgrounds, image slideshows, lo-fi audio tracks, transparent GIF overlays, a live clock, and real-time weather data.
+
+---
+
+![Usage image](https://i.ibb.co/8hHQSRC/sample.jpg)
 
 ---
 
