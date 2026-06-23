@@ -2,9 +2,6 @@
 static/assets/video/*
 !static/assets/video/.gitkeep
 
-static/assets/video/thumbs/*
-!static/assets/video/thumbs/.gitkeep
-
 static/assets/image/*
 !static/assets/image/.gitkeep
 

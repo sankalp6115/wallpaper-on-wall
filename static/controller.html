@@ -370,7 +370,8 @@
             transform: translateY(0) scale(0.97);
         }
 
-        .media-card img {
+        .media-card img,
+        .media-card video {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -378,9 +379,11 @@
             pointer-events: none;
             filter: brightness(0.8);
             transition: filter 0.2s;
+            background: var(--bg-raised);
         }
 
-        .media-card:hover img {
+        .media-card:hover img,
+        .media-card:hover video {
             filter: brightness(1);
         }
 
@@ -624,24 +627,54 @@
         liveBadge.style.display = (name && name !== '—') ? 'inline-flex' : 'none';
     }
 
+    const lazyObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                if (el.dataset.src) {
+                    el.src = el.dataset.src;
+                    el.removeAttribute('data-src');
+                }
+                observer.unobserve(el);
+            }
+        });
+    }, { rootMargin: '200px' });
+
     function populateContainer(list, containerId) {
         const container = document.getElementById(containerId);
         if (!list) return;
         list.forEach(v => {
             const ext = v.split('.').pop().toLowerCase();
             const isVideo = ['mp4', 'webm', 'ogg', 'mov'].includes(ext);
-            const imgsrc = isVideo
-                ? `/assets/video/thumbs/${v.slice(0, v.lastIndexOf('.'))}.png`
-                : `/assets/image/${v}`;
 
             const card = document.createElement('div');
             card.className = 'media-card';
 
-            const img = document.createElement('img');
-            img.src = imgsrc;
-            img.onerror = () => {
-                img.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0rj-oni2HDHa0a3AUR1ISYHtnesCZkzY6uo5OeV2_65YLg4J71pC_Fc&s=10';
-            };
+            let mediaEl;
+            if (isVideo) {
+                mediaEl = document.createElement('video');
+                // #t=0.1 tricks the browser into fetching the first frame as a poster
+                mediaEl.dataset.src = `/assets/video/${v}#t=0.1`;
+                mediaEl.muted = true;
+                mediaEl.loop = true;
+                mediaEl.playsInline = true;
+                mediaEl.preload = "metadata";
+
+                card.addEventListener('mouseenter', () => {
+                    mediaEl.play().catch(() => {}); // Catch play interruption
+                });
+                card.addEventListener('mouseleave', () => {
+                    mediaEl.pause();
+                });
+            } else {
+                mediaEl = document.createElement('img');
+                mediaEl.dataset.src = `/assets/image/${v}`;
+                mediaEl.onerror = () => {
+                    mediaEl.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0rj-oni2HDHa0a3AUR1ISYHtnesCZkzY6uo5OeV2_65YLg4J71pC_Fc&s=10';
+                };
+            }
+
+            lazyObserver.observe(mediaEl);
 
             const overlay = document.createElement('div');
             overlay.className = 'card-overlay';
@@ -649,7 +682,7 @@
             icon.className = isVideo ? 'ti ti-player-play' : 'ti ti-eye';
             overlay.appendChild(icon);
 
-            card.appendChild(img);
+            card.appendChild(mediaEl);
             card.appendChild(overlay);
             card.addEventListener('click', () => {
                 ws.send(JSON.stringify({ type: "switch_video", video: v }));

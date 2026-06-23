@@ -192,45 +192,34 @@
     }
 
     fetchWeather();
-    setInterval(fetchWeather, 2 * 60 * 60 * 1000); // Re-fetch every 2 hours;
-
-    // video
+    setInterval(fetchWeather, 2 * 60 * 60 * 1000);
     const video = document.getElementById("video");
     const image = document.getElementById("image");
     const players = document.querySelector(".players");
 
-    // overlay
     const overlay = document.getElementById("overlay")
     const overlay_img = document.getElementById("overlay_img");
 
-    // audio
     const audio = document.getElementById("audio");
 
     let ws;
-
     function connect() {
         ws = new WebSocket("ws://" + location.host + "/ws/player");
-
         ws.onopen = () => {
             console.log("Connected")
         }
-
         ws.onmessage = (event) => {
             handleMessage(event);
         }
-
         ws.onclose = () => {
             console.log("Socket closed");
             setTimeout(connect, 2000);
         }
-
         ws.onerror = () => {
             ws.close();
         }
     }
-
     connect();
-
     setInterval(() => {
         if (ws && ws.readyState === 1) {
             ws.send(JSON.stringify({ type: "ping" }));
@@ -243,7 +232,6 @@
         if (data.type == "stats") {
             players.innerHTML = `<span class="bead"></span> ${data.players} Live`
         }
-
         if (data.type == "switch_video") {
             const ext = data.video.split('.').pop().toLowerCase();
             const isVideo = ['mp4', 'webm', 'ogg', 'mov'].includes(ext);
@@ -284,12 +272,11 @@
                 const newSrc = "/assets/audio/" + data.file;
                 console.log("Playing audio:", newSrc)
                 audio.src = newSrc;
-                
+
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(err => {
                         console.error("Autoplay blocked by browser:", err);
-                        // Show an overlay to unlock audio
                         let unlockBtn = document.getElementById("audio-unlock");
                         if (!unlockBtn) {
                             unlockBtn = document.createElement("div");
@@ -304,7 +291,7 @@
                         }
                     });
                 }
-                
+
                 audio.oncanplay = () => {
                     audio.oncanplay = null;
                 }

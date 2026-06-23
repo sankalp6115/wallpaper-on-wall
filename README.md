@@ -41,7 +41,6 @@ paper_boy/
     ├── controller.html     # The Controller UI
     └── assets/
         ├── video/          # Put .mp4, .webm, .mov files here
-        │   └── thumbs/     # Put square .png thumbnails for videos here (matching filename)
         ├── image/          # Put .jpg, .png, .webp files here
         ├── audio/          # Put .mp3, .wav files here (e.g., Lofi, Rain sounds)
         └── overlay/        # Put transparent .gif files here (e.g., Raindrops, Confetti)
