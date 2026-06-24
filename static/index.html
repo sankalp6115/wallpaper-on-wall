@@ -27,6 +27,7 @@
             color: rgba(255, 255, 255, 0.95);
             z-index: 10;
             pointer-events: none;
+            padding: 10px;
         }
 
         .clock .time {
@@ -41,7 +42,6 @@
             font-size: 1.5rem;
             font-weight: 700;
             letter-spacing: 6px;
-            color: #38bdf8;
             text-transform: uppercase;
             margin-top: 10px;
         }
@@ -49,16 +49,16 @@
         .clock .date {
             font-size: 1.8rem;
             font-weight: 300;
-            color: rgba(255, 255, 255, 0.7);
             letter-spacing: 2px;
+            opacity: 0.85;
         }
 
         .clock .weather {
             font-size: 1.3rem;
             font-weight: 300;
-            color: rgba(255, 255, 255, 0.7);
             letter-spacing: 2px;
             margin-top: 10px;
+            opacity: 0.85;
         }
 
         #overlay_img {
@@ -226,6 +226,22 @@
         }
     }, 15000);
 
+    // Initialize from LocalStorage
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedColor = localStorage.getItem('displayColor');
+        if (savedColor) {
+            document.querySelector('.clock').style.color = savedColor;
+        }
+        const savedMedia = localStorage.getItem('displayMedia');
+        if (savedMedia) {
+            try {
+                handleMessage({ data: JSON.stringify({ type: "switch_video", video: savedMedia }) });
+            } catch (e) {
+                console.error("Failed to load saved media", e);
+            }
+        }
+    });
+
     const handleMessage = (event) => {
         const data = JSON.parse(event.data);
         console.log(data)
@@ -233,6 +249,7 @@
             players.innerHTML = `<span class="bead"></span> ${data.players} Live`
         }
         if (data.type == "switch_video") {
+            localStorage.setItem('displayMedia', data.video);
             const ext = data.video.split('.').pop().toLowerCase();
             const isVideo = ['mp4', 'webm', 'ogg', 'mov'].includes(ext);
             const newSrc = (isVideo ? "/assets/video/" : "/assets/image/") + data.video;
@@ -320,6 +337,10 @@
 
             if (data.volume !== undefined) {
                 audio.volume = data.volume / 100;
+            }
+            if (data.color !== undefined) {
+                document.querySelector('.clock').style.color = data.color;
+                localStorage.setItem('displayColor', data.color);
             }
         }
     }

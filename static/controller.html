@@ -498,7 +498,6 @@
             </div>
             <div>
                 <h1>Display Engine</h1>
-                <p>Media controller</p>
             </div>
             <span class="version-pill"><span class="dot"></span>Live</span>
         </div>
@@ -539,6 +538,14 @@
                     </div>
                     <input type="range" id="volume" name="volume" min="0" max="100" value="100" step="1">
                 </div>
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label"><i class="ti ti-palette"></i>Text Color</span>
+                        <span class="slider-val" id="color-val">#FFFFFF</span>
+                    </div>
+                    <input type="color" id="textcolor" name="textcolor" value="#ffffff"
+                        style="width: 100%; height: 32px; border: none; background: transparent; cursor: pointer; padding: 0;">
+                </div>
             </div>
         </div>
 
@@ -578,6 +585,8 @@
     const brightVal = document.getElementById('bright-val');
     const blurVal = document.getElementById('blur-val');
     const volVal = document.getElementById('vol-val');
+    const colorInput = document.getElementById('textcolor');
+    const colorVal = document.getElementById('color-val');
     const npName = document.getElementById('np-name');
     const liveBadge = document.getElementById('live-badge');
 
@@ -603,7 +612,8 @@
             type: "visuals",
             brightness: bright.value,
             blurness: blurEl.value,
-            volume: vol.value
+            volume: vol.value,
+            color: colorInput.value
         }));
     }
 
@@ -613,13 +623,17 @@
         brightVal.textContent = bright.value + '%';
         blurVal.textContent = blurEl.value + 'px';
         volVal.textContent = vol.value + '%';
+        colorVal.textContent = colorInput.value.toUpperCase();
+
         updateTrack(bright); updateTrack(blurEl); updateTrack(vol);
         throttledSocketSend();
     }
 
-    [bright, blurEl, vol].forEach(el => {
+    [bright, blurEl, vol, colorInput].forEach(el => {
         el.addEventListener('input', handleVisualsChange);
-        updateTrack(el);
+        if (el.type !== 'color') {
+            updateTrack(el);
+        }
     });
 
     function setNowPlaying(name) {
@@ -653,7 +667,6 @@
             let mediaEl;
             if (isVideo) {
                 mediaEl = document.createElement('video');
-                // #t=0.1 tricks the browser into fetching the first frame as a poster
                 mediaEl.dataset.src = `/assets/video/${v}#t=0.1`;
                 mediaEl.muted = true;
                 mediaEl.loop = true;
@@ -661,7 +674,7 @@
                 mediaEl.preload = "metadata";
 
                 card.addEventListener('mouseenter', () => {
-                    mediaEl.play().catch(() => {}); // Catch play interruption
+                    mediaEl.play().catch(() => { });
                 });
                 card.addEventListener('mouseleave', () => {
                     mediaEl.pause();
